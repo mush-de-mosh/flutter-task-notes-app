@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/theme_service.dart';
+import 'services/database_helper.dart';
+import 'models/task_item.dart';
 
 void main() {
   runApp(const MyApp());
@@ -182,7 +184,21 @@ class _SecondScreenState extends State<SecondScreen> {
     );
   }
 
-  void _submitTask() {
-    print('Task submitted: ${_titleController.text}');
+  void _submitTask() async {
+    if (_titleController.text.isEmpty) return;
+    
+    final task = TaskItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: _titleController.text,
+      priority: _priority,
+      description: _descriptionController.text,
+      isCompleted: false,
+    );
+    
+    await DatabaseHelper().insertTask(task);
+    
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 }
