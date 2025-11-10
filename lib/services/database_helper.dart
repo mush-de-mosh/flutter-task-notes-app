@@ -41,4 +41,14 @@ class DatabaseHelper {
     taskMap['isCompleted'] = taskMap['isCompleted'] ? 1 : 0;
     return await db.insert('tasks', taskMap);
   }
+
+  Future<List<TaskItem>> getAllTasks() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('tasks');
+    return List.generate(maps.length, (i) {
+      final map = Map<String, dynamic>.from(maps[i]);
+      map['isCompleted'] = map['isCompleted'] == 1;
+      return TaskItem.fromJson(map);
+    });
+  }
 }
