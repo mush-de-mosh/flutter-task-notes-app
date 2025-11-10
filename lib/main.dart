@@ -1,11 +1,39 @@
 import 'package:flutter/material.dart';
+import 'services/theme_service.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkTheme = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  void _loadTheme() async {
+    final isDark = await ThemeService.isDarkTheme();
+    setState(() {
+      _isDarkTheme = isDark;
+    });
+  }
+
+  void toggleTheme(bool isDark) async {
+    await ThemeService.setDarkTheme(isDark);
+    setState(() {
+      _isDarkTheme = isDark;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +42,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const HomeScreen(),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: _isDarkTheme ? ThemeMode.dark : ThemeMode.light,
+      home: HomeScreen(onThemeToggle: toggleTheme, isDarkTheme: _isDarkTheme),
     );
   }
 }
