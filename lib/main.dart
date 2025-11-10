@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.onThemeToggle,
@@ -66,11 +66,25 @@ class HomeScreen extends StatelessWidget {
   final Function(bool) onThemeToggle;
   final bool isDarkTheme;
 
-  final List<String> sampleTasks = const [
-    'Complete Flutter assignment',
-    'Review Git best practices',
-    'Prepare for project presentation',
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<TaskItem> _tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  void _loadTasks() async {
+    final tasks = await DatabaseHelper().getAllTasks();
+    setState(() {
+      _tasks = tasks;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,17 +104,19 @@ class HomeScreen extends StatelessWidget {
           ),
           SwitchListTile(
             title: const Text('Dark Theme'),
-            value: isDarkTheme,
-            onChanged: onThemeToggle,
-            secondary: Icon(isDarkTheme ? Icons.dark_mode : Icons.light_mode),
+            value: widget.isDarkTheme,
+            onChanged: widget.onThemeToggle,
+            secondary: Icon(widget.isDarkTheme ? Icons.dark_mode : Icons.light_mode),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: sampleTasks.length,
+              itemCount: _tasks.length,
               itemBuilder: (context, index) {
+                final task = _tasks[index];
                 return ListTile(
                   leading: const Icon(Icons.task_alt),
-                  title: Text(sampleTasks[index]),
+                  title: Text(task.title),
+                  subtitle: Text('Priority: ${task.priority}'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                 );
               },
@@ -109,11 +125,12 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const SecondScreen()),
           );
+          _loadTasks();
         },
         child: const Icon(Icons.add),
       ),
