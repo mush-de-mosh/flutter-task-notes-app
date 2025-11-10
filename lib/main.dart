@@ -61,3 +61,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+class SecondScreen extends StatelessWidget {
+  const SecondScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Add Task/Note'),
+      ),
+      body: const Center(
+        child: Text(
+          'Second Screen - Add Task/Note Form',
+          style: TextStyle(fontSize: 18),
+        ),
+      ),
+    );
+  }
+}
