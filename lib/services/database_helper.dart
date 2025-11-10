@@ -34,4 +34,11 @@ class DatabaseHelper {
       )
     ''');
   }
+
+  Future<int> insertTask(TaskItem task) async {
+    final db = await database;
+    final taskMap = task.toJson();
+    taskMap['isCompleted'] = taskMap['isCompleted'] ? 1 : 0;
+    return await db.insert('tasks', taskMap);
+  }
 }
