@@ -13,6 +13,16 @@ class TaskItem {
     required this.isCompleted,
   });
 
+  factory TaskItem.fromJson(Map<String, dynamic> json) {
+    return TaskItem(
+      id: json['id'],
+      title: json['title'],
+      priority: json['priority'],
+      description: json['description'],
+      isCompleted: json['isCompleted'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
