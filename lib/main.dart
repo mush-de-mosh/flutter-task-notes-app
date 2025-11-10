@@ -55,7 +55,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.onThemeToggle,
+    required this.isDarkTheme,
+  });
+
+  final Function(bool) onThemeToggle;
+  final bool isDarkTheme;
 
   final List<String> sampleTasks = const [
     'Complete Flutter assignment',
@@ -78,6 +85,12 @@ class HomeScreen extends StatelessWidget {
               'My Tasks & Notes',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+          ),
+          SwitchListTile(
+            title: const Text('Dark Theme'),
+            value: isDarkTheme,
+            onChanged: onThemeToggle,
+            secondary: Icon(isDarkTheme ? Icons.dark_mode : Icons.light_mode),
           ),
           Expanded(
             child: ListView.builder(
