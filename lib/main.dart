@@ -22,6 +22,12 @@ class MyApp extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  final List<String> sampleTasks = const [
+    'Complete Flutter assignment',
+    'Review Git best practices',
+    'Prepare for project presentation',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,13 +35,25 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Task Notes Manager'),
       ),
-      body: const Column(
+      body: Column(
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
               'My Tasks & Notes',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: sampleTasks.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: const Icon(Icons.task_alt),
+                  title: Text(sampleTasks[index]),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                );
+              },
             ),
           ),
         ],
