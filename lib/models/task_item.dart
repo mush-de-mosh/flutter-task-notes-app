@@ -12,4 +12,14 @@ class TaskItem {
     required this.description,
     required this.isCompleted,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'priority': priority,
+      'description': description,
+      'isCompleted': isCompleted,
+    };
+  }
 }
