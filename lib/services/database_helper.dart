@@ -51,4 +51,13 @@ class DatabaseHelper {
       return TaskItem.fromJson(map);
     });
   }
+
+  Future<int> deleteTask(String id) async {
+    final db = await database;
+    return await db.delete(
+      'tasks',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
