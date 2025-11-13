@@ -83,9 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _testDatabaseConnection() async {
     final isConnected = await DatabaseHelper().testConnection();
     if (isConnected) {
-      print('✅ Database connection successful!');
+      print('Database connection successful!');
     } else {
-      print('❌ Database connection failed!');
+      print('Database connection failed!');
     }
   }
 
@@ -111,12 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _deleteTask(String id) async {
     try {
-      print('🗑️ Deleting task with id: $id');
+      print(' Deleting task with id: $id');
       final result = await DatabaseHelper().deleteTask(id);
-      print('✅ Task deleted successfully. Rows affected: $result');
+      print(' Task deleted successfully. Rows affected: $result');
       _loadTasks(); // Refresh the list
     } catch (e) {
-      print('❌ Error deleting task: $e');
+      print('Error deleting task: $e');
     }
   }
 
@@ -248,7 +248,7 @@ class _SecondScreenState extends State<SecondScreen> {
 
   void _submitTask() async {
     if (_titleController.text.isEmpty) {
-      print('⚠️ Cannot submit: Title is empty');
+      print('Cannot submit: Title is empty');
       return;
     }
     
@@ -261,9 +261,9 @@ class _SecondScreenState extends State<SecondScreen> {
         isCompleted: false,
       );
       
-      print('📝 Submitting task: ${task.title} (Priority: ${task.priority})');
+      print('Submitting task: ${task.title} (Priority: ${task.priority})');
       final result = await DatabaseHelper().insertTask(task);
-      print('✅ Task inserted successfully with result: $result');
+      print('Task inserted successfully with result: $result');
       
       // Clear the form
       _titleController.clear();
@@ -276,7 +276,7 @@ class _SecondScreenState extends State<SecondScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      print('❌ Error inserting task: $e');
+      print('Error inserting task: $e');
     }
   }
 }
