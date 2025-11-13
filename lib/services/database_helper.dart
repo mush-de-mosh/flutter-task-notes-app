@@ -36,20 +36,38 @@ class DatabaseHelper {
   }
 
   Future<int> insertTask(TaskItem task) async {
-    final db = await database;
-    final taskMap = task.toJson();
-    taskMap['isCompleted'] = taskMap['isCompleted'] ? 1 : 0;
-    return await db.insert('tasks', taskMap);
+    try {
+      print('DatabaseHelper: Attempting to insert task: ${task.title}');
+      final db = await database;
+      final taskMap = task.toJson();
+      taskMap['isCompleted'] = taskMap['isCompleted'] ? 1 : 0;
+      print('DatabaseHelper: Task map: $taskMap');
+      final result = await db.insert('tasks', taskMap);
+      print('DatabaseHelper: Insert result: $result');
+      return result;
+    } catch (e) {
+      print('DatabaseHelper: Error inserting task: $e');
+      rethrow;
+    }
   }
 
   Future<List<TaskItem>> getAllTasks() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('tasks');
-    return List.generate(maps.length, (i) {
-      final map = Map<String, dynamic>.from(maps[i]);
-      map['isCompleted'] = map['isCompleted'] == 1;
-      return TaskItem.fromJson(map);
-    });
+    try {
+      print('DatabaseHelper: Getting all tasks');
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query('tasks');
+      print('DatabaseHelper: Found ${maps.length} task records');
+      final tasks = List.generate(maps.length, (i) {
+        final map = Map<String, dynamic>.from(maps[i]);
+        map['isCompleted'] = map['isCompleted'] == 1;
+        return TaskItem.fromJson(map);
+      });
+      print('DatabaseHelper: Converted to ${tasks.length} TaskItem objects');
+      return tasks;
+    } catch (e) {
+      print('DatabaseHelper: Error getting tasks: $e');
+      rethrow;
+    }
   }
 
   Future<int> deleteTask(String id) async {
@@ -59,5 +77,22 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  // Test function to verify database connection
+  Future<bool> testConnection() async {
+    try {
+      print('DatabaseHelper: Testing database connection...');
+      final db = await database;
+      
+      // Test if we can query the tasks table
+      final result = await db.rawQuery('SELECT COUNT(*) as count FROM tasks');
+      final count = result.first['count'] as int;
+      print('DatabaseHelper: Database connection successful. Current task count: $count');
+      return true;
+    } catch (e) {
+      print('DatabaseHelper: Database connection failed: $e');
+      return false;
+    }
   }
 }

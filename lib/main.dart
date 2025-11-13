@@ -76,14 +76,48 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _testDatabaseConnection();
     _loadTasks();
   }
 
+  void _testDatabaseConnection() async {
+    final isConnected = await DatabaseHelper().testConnection();
+    if (isConnected) {
+      print('✅ Database connection successful!');
+    } else {
+      print('❌ Database connection failed!');
+    }
+  }
+
   void _loadTasks() async {
-    final tasks = await DatabaseHelper().getAllTasks();
-    setState(() {
-      _tasks = tasks;
-    });
+    try {
+      print('Loading tasks from database...');
+      final tasks = await DatabaseHelper().getAllTasks();
+      print('Loaded ${tasks.length} tasks');
+      for (var task in tasks) {
+        print('Task: ${task.title} - ${task.priority}');
+      }
+      setState(() {
+        _tasks = tasks;
+      });
+    } catch (e) {
+      print('Error loading tasks: $e');
+      // Fallback to empty list if database fails
+      setState(() {
+        _tasks = [];
+      });
+    }
+  }
+
+  void _deleteTask(String id) async {
+    try {
+      print('🗑️ Deleting task with id: $id');
+      final result = await DatabaseHelper().deleteTask(id);
+      print('✅ Task deleted successfully. Rows affected: $result');
+      _loadTasks(); // Refresh the list
+    } catch (e) {
+      print('❌ Error deleting task: $e');
+    }
   }
 
   @override
@@ -95,11 +129,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'My Tasks & Notes',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const Text(
+                  'My Tasks & Notes',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'Total Tasks: ${_tasks.length}',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
             ),
           ),
           SwitchListTile(
@@ -117,7 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.task_alt),
                   title: Text(task.title),
                   subtitle: Text('Priority: ${task.priority}'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteTask(task.id),
+                  ),
                 );
               },
             ),
@@ -202,20 +247,36 @@ class _SecondScreenState extends State<SecondScreen> {
   }
 
   void _submitTask() async {
-    if (_titleController.text.isEmpty) return;
+    if (_titleController.text.isEmpty) {
+      print('⚠️ Cannot submit: Title is empty');
+      return;
+    }
     
-    final task = TaskItem(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text,
-      priority: _priority,
-      description: _descriptionController.text,
-      isCompleted: false,
-    );
-    
-    await DatabaseHelper().insertTask(task);
-    
-    if (mounted) {
-      Navigator.pop(context);
+    try {
+      final task = TaskItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: _titleController.text,
+        priority: _priority,
+        description: _descriptionController.text,
+        isCompleted: false,
+      );
+      
+      print('📝 Submitting task: ${task.title} (Priority: ${task.priority})');
+      final result = await DatabaseHelper().insertTask(task);
+      print('✅ Task inserted successfully with result: $result');
+      
+      // Clear the form
+      _titleController.clear();
+      _descriptionController.clear();
+      setState(() {
+        _priority = 'Low';
+      });
+      
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print('❌ Error inserting task: $e');
     }
   }
 }
